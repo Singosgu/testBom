@@ -32,7 +32,7 @@ ALLOWED_HOSTS = ['*']
 AUTH_USER_MODEL = "user.User"
 
 INSTALLED_APPS = [
-    'command',
+    # 'command',
     'corsheaders',
     'django_extensions',
     'django.contrib.admin',
@@ -44,14 +44,15 @@ INSTALLED_APPS = [
     'django_filters',
     'rest_framework',
     'guardian',
-    'silk'
+    'silk',
+    'user'
 ]
 
-APP_LIST = os.listdir(BASE_DIR)
-for APP in APP_LIST:
-    ADD_APP_DIR = str(os.path.join(str(os.path.join(BASE_DIR, APP)), 'config.ini'))
-    if os.path.exists(ADD_APP_DIR):
-        INSTALLED_APPS.append(APP)
+# APP_LIST = os.listdir(BASE_DIR)
+# for APP in APP_LIST:
+#     ADD_APP_DIR = str(os.path.join(str(os.path.join(BASE_DIR, APP)), 'config.ini'))
+#     if os.path.exists(ADD_APP_DIR):
+#         INSTALLED_APPS.append(APP)
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

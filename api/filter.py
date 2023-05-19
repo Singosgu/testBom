@@ -6,4 +6,4 @@ class API1filter(FilterSet):
     class Meta:
         model = api1
         fields = "__all__"
-        exclude = []
+        exclude = ['permission', ]
