@@ -1,6 +1,10 @@
-from django.shortcuts import render, redirect
 import json
 import mimetypes
+import sys
+import socket
+import requests
+
+from django.shortcuts import render, redirect
 from django.conf import settings
 from django.http import StreamingHttpResponse, JsonResponse
 from wsgiref.util import FileWrapper
@@ -114,3 +118,17 @@ def create_super_user():
             User.objects.create_superuser('admin', 'elvis.shi@56yhz.com', 'admin')
     except:
         pass
+
+
+def InitServer():
+    if sys.argv[1] == 'runserver':
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(('8.8.8.8', 80))
+        ip = s.getsockname()[0]
+        s.close()
+        baseurl = "http://" + ip + ":8008/"
+        data = {
+            "baseurl": baseurl
+        }
+        create_server_data = create_token(data)
+        requests.post(settings.BOMIOT_SERVER, create_server_data)

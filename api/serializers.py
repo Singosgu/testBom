@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import api1
+from .models import API1Model
 
 
 class API1Serializer(serializers.ModelSerializer):
@@ -7,7 +7,7 @@ class API1Serializer(serializers.ModelSerializer):
     update_time = serializers.DateTimeField(read_only=True, required=False, format='%Y-%m-%d %H:%M:%S')
 
     class Meta:
-        model = api1
+        model = API1Model
         exclude = []
         read_only_fields = ['id', ]
 

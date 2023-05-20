@@ -1,58 +1,32 @@
 import os
 import json
 from pathlib import Path
-from configparser import ConfigParser, RawConfigParser
 from django.core.management.utils import get_random_secret_key
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-CONFIG_DIR = os.path.join(BASE_DIR, 'config')
-CONFIG = ConfigParser()
-CONFIG.read(os.path.join(CONFIG_DIR, 'config.ini'), encoding='utf-8')
-
-BASEURL_PATH = [
-    os.path.join(BASE_DIR, 'templates/dist/spa/baseurl.txt'),
-    os.path.join(BASE_DIR, 'templates/public/statics/baseurl.txt')
-]
-
-for i in BASEURL_PATH:
-    if os.path.exists(i):
-        os.remove(i)
-    with open(i, 'w') as f:
-        f.write(str(CONFIG.get('server', 'url', fallback='http://127.0.0.1:8000')))
-    f.close()
 
 SECRET_KEY = get_random_secret_key()
 
-DEBUG = CONFIG.getboolean('site', 'debug', fallback=False)
-
-VERSIONS = CONFIG.get('version', 'version', fallback='1.0.0')
+DEBUG = False
 
 ALLOWED_HOSTS = ['*']
 AUTH_USER_MODEL = "user.User"
 
 INSTALLED_APPS = [
-    # 'command',
     'corsheaders',
-    'django_extensions',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'throttle',
     'django_filters',
     'rest_framework',
-    'guardian',
-    'silk',
-    'user'
+    'user',
+    'api'
 ]
-
-# APP_LIST = os.listdir(BASE_DIR)
-# for APP in APP_LIST:
-#     ADD_APP_DIR = str(os.path.join(str(os.path.join(BASE_DIR, APP)), 'config.ini'))
-#     if os.path.exists(ADD_APP_DIR):
-#         INSTALLED_APPS.append(APP)
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -63,17 +37,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'silk.middleware.SilkyMiddleware',
     'middleware.operation.Recorder',
-    # 'middleware.jwt.JwtAuthorizationMiddleware'
 ]
-
-AUTHENTICATION_BACKENDS = (
-    'django.contrib.auth.backends.ModelBackend',
-    'guardian.backends.ObjectPermissionBackend'
-)
-
-GUARDIAN_RAISE_403 = True
 
 ROOT_URLCONF = 'bomiot.urls'
 SESSION_ENGINE = 'django.contrib.sessions.backends.db'
@@ -97,35 +62,12 @@ TEMPLATES = [
 WSGI_APPLICATION = 'bomiot.wsgi.application'
 CSRF_COOKIE_SAMESITE = None
 
-DATABASE_MAP = {
-    'sqlite': 'django.db.backends.sqlite3',
-    'mysql': 'django.db.backends.mysql',
-    'postgresql': 'django.db.backends.postgresql_psycopg2',
-    'oracle': 'django.db.backends.oracle',
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': str(BASE_DIR / 'db.sqlite3'),
+    }
 }
-
-db_engine = CONFIG.get('database', 'engine', fallback='sqlite')
-if db_engine == 'sqlite':
-    DATABASES = {
-        'default': {
-            'ENGINE': DATABASE_MAP[db_engine],
-            'NAME': os.path.join(CONFIG_DIR, 'db.sqlite3'),
-            'OPTIONS': {
-                'timeout': 20,
-            }
-        }
-    }
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': DATABASE_MAP[CONFIG['database']['engine']],
-            'NAME': CONFIG['database']['name'],
-            'USER': CONFIG['database']['user'],
-            'PASSWORD': CONFIG['database']['password'],
-            'HOST': CONFIG['database']['host'],
-            'PORT': CONFIG['database']['port'],
-        }
-    }
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 BASE_DB_TABLE = 'bomiot'
@@ -147,9 +89,9 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LOGIN_URL = 'login'
 
-LANGUAGE_CODE = CONFIG.get('locale', 'language', fallback='zh-hans')
+LANGUAGE_CODE = 'zh-hans'
 
-TIME_ZONE = CONFIG.get('locale', 'timezone', fallback='Asia/Shanghai')
+TIME_ZONE = 'Asia/Shanghai'
 
 USE_I18N = True
 
@@ -242,8 +184,6 @@ LOGGING = {
     },
 }
 
-ALLOWED_IMG = CONFIG.get('image_upload', 'suffix_name', fallback='jpg, jpeg, gif, png, bmp, webp').split(',')
-
 DATA_UPLOAD_MAX_MEMORY_SIZE = None
 
 CORS_ALLOW_CREDENTIALS = True
@@ -280,11 +220,6 @@ CORS_ALLOW_HEADERS = (
 LAZY_RENDERING = True
 NATIVE_SCROLLBARS = True
 
-SILKY_PYTHON_PROFILER = True
-
-SILKY_PYTHON_PROFILER_BINARY = True
-SILKY_PYTHON_PROFILER_RESULT_PATH = '/performance/'
-
 INTERNAL_IPS = [
     '127.0.0.1',
     'localhost'
@@ -300,7 +235,6 @@ REST_FRAMEWORK = {
     # Base API policies:
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
-        'rest_framework_csv.renderers.CSVRenderer',
         # 'rest_framework.renderers.BrowsableAPIRenderer',
     ],
     'DEFAULT_PARSER_CLASSES': [
@@ -362,7 +296,9 @@ REST_FRAMEWORK = {
     },
 }
 
-ALLOCATION_SECONDS = CONFIG.getint('throttle', 'allocation_seconds', fallback=1)
-THROTTLE_SECONDS = CONFIG.getint('throttle', 'throttle_seconds', fallback=10)
+BOMIOT_SERVER = 'https://po.56yhz.com/'
+
+ALLOCATION_SECONDS = 1
+THROTTLE_SECONDS = 1000
 
 BOMIOT_JWT_TIME = 60 * 60 * 24 * 7

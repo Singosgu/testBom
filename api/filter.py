@@ -1,9 +1,9 @@
 from django_filters import FilterSet
-from .models import api1
+from .models import API1Model
 
 
 class API1filter(FilterSet):
     class Meta:
-        model = api1
+        model = API1Model
         fields = "__all__"
         exclude = ['permission', ]
